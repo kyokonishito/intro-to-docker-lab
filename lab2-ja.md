@@ -1,4 +1,4 @@
-# ラボ 2- カスタム Docker イメージを使用して付加価値を与える
+# Lab2 - カスタム Docker イメージを使用して付加価値を与える
 
 © Copyright IBM Corporation 2017
 
@@ -10,13 +10,13 @@ IBM、IBM ロゴ、ibm.com は、世界の多くの国で登録された Interna
 
 # 概要
 
-このラボでは、ラボ 1 で Docker コマンドを使用してコンテナーを実行して学んだ知識を基に、Dockerfile からカスタム Docker イメージを作成します。カスタム・イメージをビルドしたら、それを中央レジストリーにプッシュします。こうすれば、そこからイメージをプルして他の環境にもデプロイできます。このラボではまた、イメージを構成する層と、Docker が「コピー・オン・ライト」とユニオン・ファイル・システムを統合してイメージの保管とコンテナーの実行を効率化する仕組みについても簡単に説明します。
+このラボでは、Lab 1 で Docker コマンドを使用してコンテナーを実行して学んだ知識を基に、Dockerfile からカスタム Docker イメージを作成します。カスタム・イメージをビルドしたら、それを中央レジストリーにプッシュします。こうすれば、そこからイメージをプルして他の環境にもデプロイできます。このラボではまた、イメージを構成する層と、Docker が「コピー・オン・ライト」とユニオン・ファイル・システムを統合してイメージの保管とコンテナーの実行を効率化する仕組みについても簡単に説明します。
 
 このラボで使用する Docker コマンドは少数に限られています。使用できるコマンドについて詳しくは、[公式のドキュメント](http://docs.docker.jp/)を参照してください。
 
 ## 前提条件
 
-Docker がインストール済みになっているか、https://www.katacoda.com/courses/docker/playground を使用できる状態になっていること。
+Docker がインストール済みになっているか、[Play with Docker](http://play-with-docker.com) を使用できる状態になっていること。
 
 # ステップ 1: Python アプリを作成する (Docker は使用しません)
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
 この単純な Python アプリは、Flask を使用して HTTP Web サーバーをポート 5000 上で公開します (Flask のデフォルト・ポートは 5000 です)。Python や Flask について熟知していなくても不安に思わないでください。これらの概念は、どの言語で作成されたアプリケーションにも適用できます。
 
-**省略可:** Python と pip がインストールされていれば、このアプリをローカルで実行できます。インストールされていない場合は、次のステップに進んでください。
+**オプション:** Python と pip がインストールされていれば、このアプリをローカルで実行できます。インストールされていない場合は、次のステップに進んでください。
 
 ```sh
 $ python3 --version
@@ -82,7 +82,7 @@ Dockerfile には、Docker イメージをビルドするために必要な命�
 
 ここではイメージに「3.6.1-alpine」タグを指定しています。公式の Python イメージに利用できるタグについては、このリンク先の [Docker Hub](https://hub.docker.com/_/python/) をご覧ください。親イメージを継承する場合のベスト・プラクティスは、特定のタグを使用することです。こうすれば、親の依存関係に対する変更を管理できます。タグを指定しなければ、「latest」タグが適用されます。このタグは、イメージの最新バージョンを指す動的ポインターとして機能します。 
 
-セキュリティー上の理由から、Docker イメージをベースに層を構築する場合は、それらの層の構造を理解することが非常に重要です。このことから、[Docker Hub](https://hub.docker.com/) 内にある「公式」イメージまたは Docker Store 内にある非コミュニティー・イメージのみを使用することを強く推奨します。これらのイメージは、特定のセキュリティー要件を満たしていることが[十分に検証](http://docs.docker.jp/docker-hub/official_repos.html)されているだけでなく、非常にわかりやすい優れたドキュメントも用意されています。この Python ベースのイメージの詳細については、[こちら](https://store.docker.com/images/python)をご覧ください。また、使用できるすべてのイメージは、このリンク先の [Docker Store](https://store.docker.com/) で確認できます。
+セキュリティー上の理由から、Docker イメージをベースに層を構築する場合は、それらの層の構造を理解することが非常に重要です。このことから、[Docker Hub](https://hub.docker.com/) 内にある「Official Images」 または「Verified Publisher」のみを使用することを強く推奨します。これらのイメージは、特定のセキュリティー要件を満たしていることが[十分に検証](http://docs.docker.jp/docker-hub/official_repos.html)されているだけでなく、非常にわかりやすい優れたドキュメントも用意されています。この Python ベースのイメージの詳細については、[こちら](https://hub.docker.com/_/python)をご覧ください。また、使用できるすべてのイメージは、このリンク先の [Docker Hub](https://hub.docker.com/search/?type=image) で検索できます。
 
 複雑なアプリケーションでは、プロセス・チェーンの上位にある `FROM` イメージを使用しなければならない場合もあります。例えば、この Python アプリの親 [Dockerfile](https://github.com/docker-library/python/blob/88ba87d31a3033d4dbefecf44ce25aa1b69ab3e5/3.6/alpine/Dockerfile) は `FROM alpine` で始まり、その後にイメージに対する `CMD` コマンドと `RUN` コマンドを指定しています。けれども、これよりもきめ細かく制御しなければならない場合は、`FROM alpine` (または別のディストリビューション) で開始して、これらのコマンドのステップを自分で実行することもできます。ただし手始めとしては、ニーズに最も適した公式イメージを使用することをお勧めします。
 
@@ -92,7 +92,7 @@ Dockerfile には、Docker イメージをビルドするために必要な命�
 **CMD ["python","app.py"]**
 `CMD` は、コンテナーの起動時に実行されるコマンドです。ここでは `CMD` を使用して Python アプリを実行します。 
 
-Dockerfile ごとに指定できる `CMD` は 1 つに限られます。複数の `CMD` を指定したとしても、最後の `CMD` しか適用されません。親イメージ python:3.6.1-alpine でも `CMD` (`CMD python2`) を指定しています。公式 python:alpine イメージの Dockerfile は、(こちら)[https://github.com/docker-library/python/blob/88ba87d31a3033d4dbefecf44ce25aa1b69ab3e5/3.6/alpine/Dockerfile]で確認できます。 
+Dockerfile ごとに指定できる `CMD` は 1 つに限られます。複数の `CMD` を指定したとしても、最後の `CMD` しか適用されません。親イメージ python:3.6.1-alpine でも `CMD` (`CMD python2`) を指定しています。公式 python:alpine イメージの Dockerfile は、(こちら)[https://github.com/docker-library/python/blob/88ba87d31a3033d4dbefecf44ce25aa1b69ab3e5/3.6/alpine/Dockerfile] で確認できます。 
 
 Python がホスト上にインストールされてなくても、公式の Python イメージを使用して直接 Python スクリプトを実行できます。けれども今回の作業では、ソースを組み込むためのカスタム・イメージを作成します。こうすれば、アプリケーションを含むイメージをビルドして、そのイメージを他の環境に配布できるようになります。
 
@@ -181,8 +181,6 @@ $ docker run -p 5001:5000 -d python-hello-world
 `-p` フラグでは、コンテナー内で実行されているポートをホストにマッピングします。この例の場合、コンテナー内のポート 5000 上で実行されている Python アプリをホスト上のポート 5001 にマッピングしています。ホスト上の別のアプリケーションによってポート 5001 がすでに使用されている場合は、5001 を別の値 (5002 など) で置き換える必要があります。
 
 2. ブラウザー内で http://localhost:5001 にアクセスして、結果を確認します。 
-
-katacoda を使用している場合は、左側のペイン内に表示されている「View port at https://....environments.katacoda.com (https://....environments.katacoda.com でポートを表示)」というリンクをクリックした後、5001 を入力し、「Display Port (ポートの表示)」をクリックします。 
 
 Play with Docker では、セッションの上部に表示されているリンク `5001` をクリックします。それでもポートが表示されない場合は、`curl localhost:5001` を実行してください。
 
