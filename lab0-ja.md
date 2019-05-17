@@ -17,8 +17,8 @@ IBM、IBM ロゴ、ibm.com は、世界の多くの国で登録された Interna
 Docker IDが下記で必要です
 - Dockerのインストール
 - Docker をインストールせずに[Play with Docker](http://play-with-docker.com) の使用する場合
-- Lab2([Docker Hub]（https://hub.docker.com/）を使用するため)
-- Lab3([Play with Docker](http://play-with-docker.com)を使用するため)
+- Lab2( [Docker Hub](https://hub.docker.com/) を使用するため)
+- Lab3( [Play with Docker](http://play-with-docker.com)を使用するため)
 
 お持ちでない場合は https://hub.docker.com/ より [[Sign up for Docker Hub]](https://hub.docker.com/signup)をクリックして作成してください。登録にはメールアドレスが必要です。
 Webでの登録作業完了後、登録したメールアドレスにメールが送付されますので、そのメールにあるメールアドレスを確認するリンクをクリックしてアカウント登録が完了します。
